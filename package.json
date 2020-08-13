@@ -40,6 +40,7 @@
     "@types/koa-static": "^4.0.1",
     "@types/koa-views": "^2.0.4",
     "acorn": "^6.4.1",
+    "dot-prop": "^5.2.0",
     "dotenv": "^8.2.0",
     "koa": "^2.11.0",
     "koa-bodyparser": "^4.2.1",
