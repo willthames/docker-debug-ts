@@ -1,64 +1,18 @@
-# @south-paw/koa-typescript
+# Build
 
-♨️ Simple boilerplate for a Koa server with Typescript, ESLint, Prettier and Jest.
+Run `make $colour` to create a container labelled with that colour that shows a header in that colour.
 
-## About
+Note that the foreground colour is white, so light container names are likely a bad idea
 
-Unlike some of the other Koa boilerplates out there, this one is intended to be simple, minimalistic and reasonably unopinionated.
+# Run
 
-- Typescript, ESLint, Prettier and Jest are ready to roll
-- Config has `.env` file support
-- Simple `/health` route implemented
+`docker run -e ROOT_CONTEXT=/docker-debug -p 7070:7070 willthames/docker-debug`
 
-You don't need to keep anything as you find it and hopefully it will save you a little time when you need a quick boilerplate for that next Koa project.
+will create a docker-debug service responding to http://localhost:5000/docker-debug
 
-If you think theres some kind of improvement to be made, please raise a ticket or make a pull request.
+The `ROOT_CONTEXT` is optional, if omitted it will respond to http://localhost:5000/
 
-## Issues and Bugs
+# Acknowledgments
 
-If you manage to find any, please report them [here](https://github.com/South-Paw/react-vector-maps/issues) so they can be squashed.
-
-## Development
-
-Install [`Node.js`](https://nodejs.org/) and [`Yarn`](https://yarnpkg.com).
-
-Open the project directory in your CLI and run the `yarn` command to install dependencies, after that you can run any of following commands
-
-```bash
-# Runs all watch tasks (TypeScript, Node)
-yarn watch
-
-# Runs all watch tasks with --inspect flag
-yarn watch:debug
-
-# Runs ESLint on project files
-yarn lint
-
-# Runs tests using Jest
-yarn test
-
-# Runs tests in watch mode
-yarn test:watch
-
-# Build the app
-yarn build
-
-# Starts the built app with node
-yarn start
-
-# Starts the built app in watch mode
-yarn start:watch
-
-# Starts the built app in watch mode with --inspect flag
-yarn start:debug
-
-# Compile all source .ts files to .js files in the dist folder
-yarn ts
-
-# Compile in watch mode
-yarn ts:watch
-```
-
-## License
-
-MIT, see the [LICENSE](./LICENSE) file.
+Thanks to https://github.com/South-Paw/koa-typescript for saving me a lot of the initial
+work of setting up koa for typescript and jest

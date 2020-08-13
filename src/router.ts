@@ -1,8 +1,12 @@
 import Router from 'koa-router';
-import HealthRoutes from './routes/health';
+import PingRoutes from './routes/ping';
+import SleepRoutes from './routes/sleep';
+import RandomRoutes from './routes/random';
 
 const router = new Router();
 
-HealthRoutes.register(router);
+PingRoutes.register(router);
+SleepRoutes.register(router);
+RandomRoutes.register(router);
 
 export { router };

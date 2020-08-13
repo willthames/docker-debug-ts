@@ -31,7 +31,8 @@
     "start:debug": "nodemon --inspect dist/index.js",
     "ts": "tsc",
     "ts:watch": "tsc -w",
-    "clean": "rimraf dist coverage"
+    "clean": "rimraf dist coverage",
+    "format": "eslint --fix --ext .ts src && prettier -c src/**/*.ts"
   },
   "dependencies": {
     "@koa/cors": "^3.0.0",

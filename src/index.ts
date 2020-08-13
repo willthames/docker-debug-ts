@@ -4,10 +4,14 @@ import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import { appConfig, bodyParserConfig, corsConfig } from './config';
 import { router } from './router';
+import { observability } from './middleware/observability';
+import { logger } from './middleware/logger';
 
 const app = new Koa();
 
 // Apply Middleware
+app.use(logger);
+app.use(observability);
 app.use(bodyParser(bodyParserConfig));
 app.use(cors(corsConfig));
 

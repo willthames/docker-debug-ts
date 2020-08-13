@@ -1,9 +1,9 @@
 import Router from 'koa-router';
 
 const register = (router: Router) => {
-  router.get('/health', async ctx => {
+  router.get('/ping', async ctx => {
     ctx.status = 200;
-    ctx.body = { status: 'OK' };
+    ctx.body = 'pong';
   });
 };
 
