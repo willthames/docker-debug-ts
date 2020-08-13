@@ -1,11 +1,12 @@
 import cors from '@koa/cors';
 import http from 'http';
 import Koa from 'koa';
+import views from 'koa-views';
 import serve from 'koa-static';
 import bodyParser from 'koa-bodyparser';
 import path from 'path';
-import { appConfig, bodyParserConfig, corsConfig } from './config';
 import { router } from './router';
+import { appConfig, bodyParserConfig, corsConfig } from './config';
 import { observability } from './middleware/observability';
 import { logger } from './middleware/logger';
 import { factory } from './logging';
@@ -18,6 +19,15 @@ app.use(logger);
 app.use(observability);
 app.use(bodyParser(bodyParserConfig));
 app.use(cors(corsConfig));
+
+const render = views(path.join(__dirname, '..', 'src', 'views'), {
+  map: {
+    html: 'handlebars',
+  },
+});
+
+// Must be used before any router is used
+app.use(render);
 
 // Apply routes
 app.use(router.routes());

@@ -5,5 +5,6 @@ import { Observability } from './middleware/observability';
 declare module 'koa' {
   interface Context {
     observability: Observability;
+    render(viewPath: string, locals?: any): Promise<void>;
   }
 }

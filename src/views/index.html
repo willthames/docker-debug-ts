@@ -1,0 +1,38 @@
+<!doctype html>
+<head>
+<title>Docker Debug</title>
+<link rel="stylesheet" href="/static/{{ colour }}.css">
+<link rel="stylesheet" href="/static/style.css">
+{{# if buggy }}
+<link rel="stylesheet" href="/static/extras/shake.css">
+{{/if}}
+</head>
+<body>
+<div class="header">
+<h1>docker debug</h1>
+</div>
+<h2>Headers</h2>
+<table>
+<thead>
+<tr><th>Header</th><th>Value</th></tr>
+</thead>
+<tbody>
+{{#each headers}}
+<tr><td><code>{{ @key }}</code></td><td><code>{{ this }}</code></td></tr>
+{{/each}}
+</tbody>
+</table>
+
+<h2>Environment Variables</h2>
+<table>
+<thead>
+<tr><th>Environment Variable</th><th>Value</th></tr>
+</thead>
+<tbody>
+{{#each environs}}
+<tr><td><code>{{ @key }}</code></td><td><code>{{ this }}</code></td></tr>
+{{/each}}
+</tbody>
+</table>
+</body>
+</html>
