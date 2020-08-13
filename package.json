@@ -25,7 +25,7 @@
     "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet",
     "test": "jest --forceExit --coverage --verbose",
     "test:watch": "yarn test --watchAll",
-    "build": "yarn clean && yarn ts && yarn lint",
+    "build": "yarn clean && yarn lint && yarn ts",
     "start": "node dist/index.js",
     "start:watch": "nodemon dist/index.js",
     "start:debug": "nodemon --inspect dist/index.js",
@@ -41,7 +41,8 @@
     "koa": "^2.11.0",
     "koa-bodyparser": "^4.2.1",
     "koa-router": "^8.0.8",
-    "koa-static": "^5.0.0"
+    "koa-static": "^5.0.0",
+    "typescript-logging": "^1.0.0"
   },
   "devDependencies": {
     "@types/dotenv": "^8.2.0",

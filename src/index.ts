@@ -8,7 +8,9 @@ import { appConfig, bodyParserConfig, corsConfig } from './config';
 import { router } from './router';
 import { observability } from './middleware/observability';
 import { logger } from './middleware/logger';
+import { factory } from './logging';
 
+const log = factory.getLogger('index');
 const app = new Koa();
 
 // Apply Middleware
@@ -30,6 +32,5 @@ if (root) {
 }
 
 httpServer.listen({ host, port }, () => {
-  // eslint-disable-next-line no-console
-  console.info(`${name}@${version} server listening on ${host}:${port}, in ${env}`);
+  log.info(`${name}@${version} server listening on ${host}:${port}, in ${env}`);
 });
