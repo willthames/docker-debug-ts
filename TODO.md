@@ -6,6 +6,6 @@
 * [x] /random
 * [ ] /
 * [ ] tests
-* [ ] static
+* [x] static
 * [x] root context
 

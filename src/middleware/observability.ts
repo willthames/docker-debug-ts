@@ -24,7 +24,7 @@ export async function observability(ctx: Context, next: Next) {
     orgId: ctx.request.get('X-Org-Id') || '-',
     durationMs: ms,
     httpStatus: ctx.response.status,
-    httpBytes: ctx.response.length,
+    httpBytes: ctx.response.length || 0,
     httpPath: ctx.request.path,
     httpMethod: ctx.request.method,
     httpUserAgent: ctx.request.get('User-Agent') || '-',

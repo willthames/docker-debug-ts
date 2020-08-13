@@ -16,7 +16,7 @@ export async function logger(ctx: Context, next: Next) {
     httpPath,
   } = ctx.observability;
   const timestamp = new Date().toISOString();
-  console.log(
-    `${timestamp} ${srcIp} ${userId} ${orgId} ${requestId} ${httpMethod} ${httpPath} ${httpStatus} ${httpUserAgent} "${httpReferrer}" ${httpBytes} ${durationMs}`,
+  process.stdout.write(
+    `${timestamp} ${srcIp} ${userId} ${orgId} ${requestId} ${httpMethod} ${httpPath} ${httpStatus} ${httpUserAgent} "${httpReferrer}" ${httpBytes} ${durationMs}\n`,
   );
 }
