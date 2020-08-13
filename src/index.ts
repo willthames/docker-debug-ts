@@ -20,7 +20,11 @@ app.use(router.routes());
 
 const httpServer = http.createServer(app.callback());
 
-const { env, name, version, host, port } = appConfig;
+const { env, name, version, host, port, root } = appConfig;
+
+if (root) {
+  router.prefix(root);
+}
 
 httpServer.listen({ host, port }, () => {
   // eslint-disable-next-line no-console
