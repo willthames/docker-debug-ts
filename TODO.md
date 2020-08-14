@@ -8,6 +8,6 @@
 * [ ] tests
 * [x] static
 * [x] root context
-* [ ] eachSort
-* [ ] move / content into shareable location
+* [x] eachSort
+* [x] move / content into shareable location
 
