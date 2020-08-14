@@ -5,6 +5,7 @@ import views from 'koa-views';
 import serve from 'koa-static';
 import bodyParser from 'koa-bodyparser';
 import path from 'path';
+import { eachSorted } from './handlebars';
 import { router } from './router';
 import { appConfig, bodyParserConfig, corsConfig } from './config';
 import { observability } from './middleware/observability';
@@ -23,6 +24,11 @@ app.use(cors(corsConfig));
 const render = views(path.join(__dirname, '..', 'src', 'views'), {
   map: {
     html: 'handlebars',
+  },
+  options: {
+    helpers: {
+      eachSorted,
+    },
   },
 });
 

@@ -17,9 +17,9 @@
 <tr><th>Header</th><th>Value</th></tr>
 </thead>
 <tbody>
-{{#each headers}}
-<tr><td><code>{{ @key }}</code></td><td><code>{{ this }}</code></td></tr>
-{{/each}}
+{{#eachSorted headers}}
+<tr><td><code>{{ @key }}</code></td><td><code>{{ @value }}</code></td></tr>
+{{/eachSorted}}
 </tbody>
 </table>
 
@@ -29,9 +29,9 @@
 <tr><th>Environment Variable</th><th>Value</th></tr>
 </thead>
 <tbody>
-{{#each environs}}
-<tr><td><code>{{ @key }}</code></td><td><code>{{ this }}</code></td></tr>
-{{/each}}
+{{#eachSorted environs}}
+<tr><td><code>{{ @key }}</code></td><td><code>{{ @value }}</code></td></tr>
+{{/eachSorted}}
 </tbody>
 </table>
 </body>

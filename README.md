@@ -8,9 +8,9 @@ Note that the foreground colour is white, so light container names are likely a 
 
 `docker run -e ROOT_CONTEXT=/docker-debug -p 7070:7070 willthames/docker-debug`
 
-will create a docker-debug service responding to http://localhost:5000/docker-debug
+will create a docker-debug service responding to http://localhost:7070/docker-debug
 
-The `ROOT_CONTEXT` is optional, if omitted it will respond to http://localhost:5000/
+The `ROOT_CONTEXT` is optional, if omitted it will respond to http://localhost:7070/
 
 # Acknowledgments
 
