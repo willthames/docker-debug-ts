@@ -6,11 +6,15 @@ import { factory } from '../../logging';
 
 const log = factory.getLogger('proxy');
 
-function onwardHeaders(headers: any, url: String): any {
+function inboundHeaders(headers: any, url: String): any {
   const result = Object.assign(headers);
   delete result['x-user-agent'];
   result.referer = url;
   return result;
+}
+
+function outboundHeaders(ctx: Koa.Context, headers: any) {
+  Object.keys(headers).forEach(key => ctx.set(key, headers[key]));
 }
 
 async function proxy(ctx: Koa.Context, protocol: String, host: String, port: number, rest: String) {
@@ -23,15 +27,21 @@ async function proxy(ctx: Koa.Context, protocol: String, host: String, port: num
   const url = `${protocol}://${host}:${port}/${rest}`;
   const options = {
     method: ctx.request.method as Method,
-    headers: onwardHeaders(ctx.request.headers, ctx.request.URL.toString()),
+    headers: inboundHeaders(ctx.request.headers, ctx.request.URL.toString()),
     data: ctx.request.body,
     url,
   };
-  await axios(options).then(response => {
-    ctx.response.body = response.data;
-    ctx.response.status = response.status;
-    // ctx.response.headers = response.headers;
-  });
+  await axios(options)
+    .then(response => {
+      ctx.response.body = response.data;
+      ctx.response.status = response.status;
+      outboundHeaders(ctx, response.headers);
+    })
+    .catch(error => {
+      ctx.response.body = error.response.data;
+      ctx.response.status = error.response.status;
+      outboundHeaders(ctx, error.response.headers);
+    });
 }
 
 const register = (router: Router<Koa.DefaultState, Koa.Context>) => {
