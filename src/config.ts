@@ -13,6 +13,8 @@ export const appConfig = {
   host: process.env.APP_HOST || '0.0.0.0',
   port: process.env.APP_PORT || 7070,
   root: process.env.ROOT_CONTEXT || '',
+  tracing_host: process.env.TRACING_HOST || '',
+  tracing_rate: process.env.TRACING_SAMPLE_RATE || 0,
 };
 
 // koa-bodyparser config

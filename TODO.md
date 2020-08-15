@@ -10,4 +10,4 @@
 * [x] root context
 * [x] eachSort
 * [x] move / content into shareable location
-
+* [x] simple proxy
