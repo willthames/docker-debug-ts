@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  name: docker-debug
+spec:
+  type: NodePort
+  ports:
+    - port: 7070
+      protocol: TCP
+      targetPort: 7070
+  selector:
+    app: docker-debug
