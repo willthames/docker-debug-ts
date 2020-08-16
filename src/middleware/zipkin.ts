@@ -66,17 +66,12 @@ export function koaMiddleware({ tracer, serviceName, port = 0 }: MiddlewareOptio
    */
   return function zipkinKoaMiddleware(ctx: Koa.Context, next: Koa.Next) {
     return tracer.scoped(() => {
-      log.info('1');
       const id = defaultRecordRequest(ctx, instrumentation);
-      log.info('2');
-
       ctx.recordResponse = defaultRecordResponse;
       Object.defineProperty(ctx.request, '_trace_id', { configurable: false, get: () => id });
       const recordResponse = () => {
         ctx.recordResponse(ctx, tracer, instrumentation, id);
       };
-      log.info('3');
-
       return next()
         .then(recordResponse)
         .catch(recordResponse);
