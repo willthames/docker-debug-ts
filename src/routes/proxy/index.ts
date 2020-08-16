@@ -44,8 +44,11 @@ async function proxy(ctx: Koa.Context, protocol: String, host: String, port: num
     });
 }
 
-const register = (router: Router<Koa.DefaultState, Koa.Context>) => {
-  router.all('/proxy/:protocol/:host/:port/:rest(.*)', async ctx => {
+const register = (
+  router: Router<Koa.DefaultState, Koa.Context>,
+  zipkinMiddleware: Koa.Middleware<Koa.DefaultState, Koa.Context>,
+) => {
+  router.all('/proxy/:protocol/:host/:port/:rest(.*)', zipkinMiddleware, async ctx => {
     await proxy(ctx, ctx.params.protocol, ctx.params.host, ctx.params.port, ctx.params.rest);
   });
 };

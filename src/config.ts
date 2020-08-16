@@ -17,6 +17,12 @@ export const appConfig = {
   tracing_rate: process.env.TRACING_SAMPLE_RATE || 0,
 };
 
+export const tracingConfig = {
+  host: process.env.TRACING_HOST || '',
+  port: parseInt(process.env.TRACING_PORT || '9090', 10),
+  name: process.env.APP_NAME || name,
+};
+
 // koa-bodyparser config
 // https://github.com/koajs/bodyparser
 export const bodyParserConfig: BodyParserOptions = {

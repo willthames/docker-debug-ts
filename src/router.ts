@@ -6,12 +6,14 @@ import RandomRoutes from './routes/random';
 import RootRoutes from './routes';
 import ProxyRoutes from './routes/proxy';
 
-const router = new Router<Koa.DefaultState, Koa.Context>();
-
-PingRoutes.register(router);
-SleepRoutes.register(router);
-RandomRoutes.register(router);
-RootRoutes.register(router);
-ProxyRoutes.register(router);
-
-export { router };
+export function router(
+  zipkinMiddleware: Koa.Middleware<Koa.DefaultState, Koa.Context>,
+): Router<Koa.DefaultState, Koa.Context> {
+  const newRouter = new Router<Koa.DefaultState, Koa.Context>();
+  PingRoutes.register(newRouter);
+  SleepRoutes.register(newRouter, zipkinMiddleware);
+  RandomRoutes.register(newRouter, zipkinMiddleware);
+  RootRoutes.register(newRouter, zipkinMiddleware);
+  ProxyRoutes.register(newRouter, zipkinMiddleware);
+  return newRouter;
+}
