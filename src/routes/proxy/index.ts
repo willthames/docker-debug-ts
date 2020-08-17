@@ -1,8 +1,8 @@
 import Router from 'koa-router';
 import Koa from 'koa';
-import { Method } from 'axios';
+import axios, { Method } from 'axios';
+import { SpanKind } from '@opentelemetry/api';
 
-import { zipkinAxios } from '../../middleware/zipkin';
 import { factory } from '../../logging';
 
 const log = factory.getLogger('proxy');
@@ -16,6 +16,19 @@ function inboundHeaders(headers: any, url: String): any {
 
 function outboundHeaders(ctx: Koa.Context, headers: any) {
   Object.keys(headers).forEach(key => ctx.set(key, headers[key]));
+}
+
+async function makeRequest(ctx: Koa.Context, options: any) {
+  try {
+    const response = await axios(options);
+    ctx.response.body = response.data;
+    ctx.response.status = response.status;
+    outboundHeaders(ctx, response.headers);
+  } catch (error) {
+    ctx.response.body = error.response.data;
+    ctx.response.status = error.response.status;
+    outboundHeaders(ctx, error.response.headers);
+  }
 }
 
 async function proxy(ctx: Koa.Context, protocol: String, host: String, port: number, rest: String) {
@@ -33,25 +46,18 @@ async function proxy(ctx: Koa.Context, protocol: String, host: String, port: num
     url,
   };
 
-  let axios;
-  try {
-    axios = await zipkinAxios(ctx);
-  } catch (error) {
-    log.error("Couldn't create axios", error);
-    ctx.response.body = `${error}`;
-    ctx.response.status = 500;
-    return;
-  }
-
-  try {
-    const response = await axios(axiosOptions);
-    ctx.response.body = response.data;
-    ctx.response.status = response.status;
-    outboundHeaders(ctx, response.headers);
-  } catch (error) {
-    ctx.response.body = error.response.data;
-    ctx.response.status = error.response.status;
-    outboundHeaders(ctx, error.response.headers);
+  if (ctx.tracer) {
+    const currentSpan = ctx.span || ctx.tracer.getCurrentSpan();
+    const span = ctx.tracer.startSpan(`${axiosOptions.method} ${axiosOptions.url}`, {
+      parent: currentSpan,
+      kind: SpanKind.CLIENT,
+    });
+    await ctx.tracer.withSpan(span, async () => {
+      await makeRequest(ctx, axiosOptions);
+    });
+    span.end();
+  } else {
+    await makeRequest(ctx, axiosOptions);
   }
 }
 
