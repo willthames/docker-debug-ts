@@ -4,9 +4,8 @@
 
 import { option, Instrumentation, Tracer, TraceId } from 'zipkin';
 import Koa from 'koa';
-import { factory } from '../logging';
-
-const log = factory.getLogger('zipkin');
+import axios, { AxiosInstance } from 'axios';
+import wrapAxios from 'zipkin-instrumentation-axiosjs';
 
 /**
  * @typedef {Object} MiddlewareOptions
@@ -19,6 +18,28 @@ type MiddlewareOptions = {
   serviceName: string;
   port: number;
 };
+
+function getHostAndPort(protocol: string, hostname: string) {
+  const tokens = hostname.split(':');
+  let port: number;
+  if (tokens.length === 2) {
+    port = parseInt(tokens[1], 10);
+  } else if (protocol.toLowerCase() === 'https') {
+    port = 443;
+  } else {
+    port = 80;
+  }
+  return { host: tokens[0], port };
+}
+
+export function zipkinAxios(ctx: Koa.Context): AxiosInstance {
+  if (ctx.tracer) {
+    const { host, port } = getHostAndPort(ctx.request.protocol, ctx.request.host);
+    const options = { tracer: ctx.tracer, serviceName: host, port };
+    return wrapAxios(axios, options);
+  }
+  return axios;
+}
 
 // spanNameFromRoute is from packages/zipkin/src/instrumentation/httpServer.js
 // until it's added to zipkin's type declarations file
@@ -65,6 +86,7 @@ export function koaMiddleware({ tracer, serviceName, port = 0 }: MiddlewareOptio
    * @param {function()} next
    */
   return function zipkinKoaMiddleware(ctx: Koa.Context, next: Koa.Next) {
+    ctx.tracer = tracer;
     return tracer.scoped(() => {
       const id = defaultRecordRequest(ctx, instrumentation);
       ctx.recordResponse = defaultRecordResponse;

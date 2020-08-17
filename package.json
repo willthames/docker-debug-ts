@@ -50,6 +50,7 @@
     "koa-views": "^6.3.0",
     "typescript-logging": "^1.0.0",
     "zipkin": "^0.22.0",
+    "zipkin-instrumentation-axiosjs": "^0.22.0",
     "zipkin-transport-http": "^0.22.0"
   },
   "devDependencies": {

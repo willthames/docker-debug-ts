@@ -13,5 +13,6 @@ declare module 'koa' {
   interface Context {
     recordResponse(ctx: Context, tracer: Tracer, instrumentation: Instrumentation.HttpServer, id: TraceId): void;
     observability: Observability;
+    tracer?: Tracer;
   }
 }

@@ -5644,6 +5644,13 @@ zipkin-context-cls@^0.19.0:
   dependencies:
     continuation-local-storage "^3.1.7"
 
+zipkin-instrumentation-axiosjs@^0.22.0:
+  version "0.22.0"
+  resolved "https://registry.yarnpkg.com/zipkin-instrumentation-axiosjs/-/zipkin-instrumentation-axiosjs-0.22.0.tgz#668adb4bc4c19b7259cd816803f7be0410ff09b3"
+  integrity sha512-JfRFrbT2EQgVdoK1NvDXhQeHqfKCNxkRYDwAliVbzfTn5ibKD/V3BZevuczxrSNJxeNSR8mu765XkGtY7oS7Wg==
+  dependencies:
+    zipkin "^0.22.0"
+
 zipkin-instrumentation-fetch@^0.19.0:
   version "0.19.2"
   resolved "https://registry.yarnpkg.com/zipkin-instrumentation-fetch/-/zipkin-instrumentation-fetch-0.19.2.tgz#46e1fa9bb1f2b1e84524d529918e69576ad5987a"
