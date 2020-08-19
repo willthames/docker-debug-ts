@@ -1,5 +1,6 @@
 import Koa from 'koa';
-import { Tracer } from '@opentelemetry/api';
+import { propagation, context, Tracer, defaultGetter } from '@opentelemetry/api';
+
 import { factory } from '../logging';
 
 const log = factory.getLogger('tracing');
@@ -23,18 +24,28 @@ export function koaMiddleware(tracer: Tracer) {
    * @param {function()} next
    */
   return async function zipkinKoaMiddleware(ctx: Koa.Context, next: Koa.Next) {
-    const currentSpan = ctx.span || tracer.getCurrentSpan();
-    const span = tracer.startSpan(`${ctx.request.method} ${ctx.request.path}`, {
-      parent: currentSpan,
-      kind: 1,
-      attributes: {
-        'http.path': ctx.request.path,
-        'http.method': ctx.request.method,
+    ctx.tracer = tracer;
+    const ourContext = context.active();
+    try {
+      propagation.extract(ctx.request.headers, defaultGetter, ourContext);
+    } catch (error) {
+      log.error("Couldn't get propagation: ", error);
+      next();
+      return;
+    }
+    const span = tracer.startSpan(
+      `${ctx.request.method} ${ctx.request.path}`,
+      {
+        kind: 1,
+        attributes: {
+          'http.path': ctx.request.path,
+          'http.method': ctx.request.method,
+        },
       },
-    });
+      ourContext,
+    );
     ctx.span = span;
     log.info(`New span: ${span.context().traceId} ${span.context().spanId}`);
-
     const recordResponse = () => {
       span.setAttribute('http.status', ctx.response.status);
       if (ctx.response.body) {
