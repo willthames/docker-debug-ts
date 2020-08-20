@@ -1,20 +1,40 @@
 import Router from 'koa-router';
 import Koa from 'koa';
 import axios, { Method } from 'axios';
+import { SpanKind, propagation, context, defaultSetter } from '@opentelemetry/api';
+import { setActiveSpan } from '@opentelemetry/core';
 
 import { factory } from '../../logging';
 
 const log = factory.getLogger('proxy');
 
-function inboundHeaders(headers: any, url: String): any {
-  const result = Object.assign(headers);
-  delete result['x-user-agent'];
-  result.referer = url;
+function requestHeaders(ctx: Koa.Context): any {
+  const result = Object.assign(ctx.request.headers);
+  delete result['user-agent'];
+  result.referer = ctx.request.URL.toString();
+  let ourContext = context.active();
+  if (ctx.span) {
+    ourContext = setActiveSpan(ourContext, ctx.span);
+    propagation.inject(result, defaultSetter, ourContext);
+  }
   return result;
 }
 
-function outboundHeaders(ctx: Koa.Context, headers: any) {
+function responseHeaders(ctx: Koa.Context, headers: any) {
   Object.keys(headers).forEach(key => ctx.set(key, headers[key]));
+}
+
+async function makeRequest(ctx: Koa.Context, options: any) {
+  try {
+    const response = await axios(options);
+    ctx.response.body = response.data;
+    ctx.response.status = response.status;
+    responseHeaders(ctx, response.headers);
+  } catch (error) {
+    ctx.response.body = error.response.data;
+    ctx.response.status = error.response.status;
+    responseHeaders(ctx, error.response.headers);
+  }
 }
 
 async function proxy(ctx: Koa.Context, protocol: String, host: String, port: number, rest: String) {
@@ -25,27 +45,32 @@ async function proxy(ctx: Koa.Context, protocol: String, host: String, port: num
     return;
   }
   const url = `${protocol}://${host}:${port}/${rest}`;
-  const options = {
+  const axiosOptions = {
     method: ctx.request.method as Method,
-    headers: inboundHeaders(ctx.request.headers, ctx.request.URL.toString()),
+    headers: requestHeaders(ctx),
     data: ctx.request.body,
     url,
   };
-  await axios(options)
-    .then(response => {
-      ctx.response.body = response.data;
-      ctx.response.status = response.status;
-      outboundHeaders(ctx, response.headers);
-    })
-    .catch(error => {
-      ctx.response.body = error.response.data;
-      ctx.response.status = error.response.status;
-      outboundHeaders(ctx, error.response.headers);
+  if (ctx.tracer) {
+    const currentSpan = ctx.span || ctx.tracer.getCurrentSpan();
+    const span = ctx.tracer.startSpan(`${axiosOptions.method} ${axiosOptions.url}`, {
+      parent: currentSpan,
+      kind: SpanKind.CLIENT,
     });
+    await ctx.tracer.withSpan(span, async () => {
+      await makeRequest(ctx, axiosOptions);
+    });
+    span.end();
+  } else {
+    await makeRequest(ctx, axiosOptions);
+  }
 }
 
-const register = (router: Router<Koa.DefaultState, Koa.Context>) => {
-  router.all('/proxy/:protocol/:host/:port/:rest(.*)', async ctx => {
+const register = (
+  router: Router<Koa.DefaultState, Koa.Context>,
+  zipkinMiddleware: Koa.Middleware<Koa.DefaultState, Koa.Context>,
+) => {
+  router.all('/proxy/:protocol/:host/:port/:rest(.*)', zipkinMiddleware, async ctx => {
     await proxy(ctx, ctx.params.protocol, ctx.params.host, ctx.params.port, ctx.params.rest);
   });
 };

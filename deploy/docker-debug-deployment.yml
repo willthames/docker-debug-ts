@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: docker-debug
+  name: docker-debug
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docker-debug
+  template:
+    metadata:
+      labels:
+        app: docker-debug
+    spec:
+      containers:
+        - image: willthames/docker-debug:0.2-node-12.18.3
+          imagePullPolicy: Always
+          name: docker-debug
+          resources:
+            limits:
+              cpu: 200m
+              memory: 100Mi
+          env:
+            - name: TRACING_HOST
+              value: zipkin
+            - name: TRACING_PORT
+              value: "9411"
+            - name: APP_NAME
+              value: docker-debug
