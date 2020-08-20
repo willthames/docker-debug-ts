@@ -1,32 +1,24 @@
-import opentelemetry, { Tracer } from '@opentelemetry/api';
+import { propagation, trace, Tracer } from '@opentelemetry/api';
+import { B3Propagator } from '@opentelemetry/core';
 import { NodeTracerProvider } from '@opentelemetry/node';
-import { SimpleSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/tracing';
-import { AsyncHooksContextManager } from '@opentelemetry/context-async-hooks'
-// import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
+import { SimpleSpanProcessor } from '@opentelemetry/tracing';
+import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
 
 export function getTracer(url: string, serviceName: string): Tracer {
-  const provider = new NodeTracerProvider({
-    plugins: {
-      http: {
-        enabled: true,
-        path: '@opentelemetry/plugin-http',
-      },
-    },
-  });
-  /*
-  const options = {
-    url,
-    serviceName,
-  };
-  */
-  const contextManager = new AsyncHooksContextManager();
-  contextManager.enable();
-  // provider.addSpanProcessor(new SimpleSpanProcessor(new ZipkinExporter(options)));
-  provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
-  // Initialize the OpenTelemetry APIs to use the NodeTracerProvider bindings
-  provider.register({
-    contextManager,
-  });
+  // set global propagator
+  propagation.setGlobalPropagator(new B3Propagator());
 
-  return opentelemetry.trace.getTracer(serviceName);
+  // Create a provider for activating and tracking spans
+  const provider = new NodeTracerProvider();
+
+  const options = {
+    serviceName,
+    url,
+  };
+
+  provider.addSpanProcessor(new SimpleSpanProcessor(new ZipkinExporter(options)));
+  // Initialize the OpenTelemetry APIs to use the NodeTracerProvider bindings
+  provider.register();
+
+  return trace.getTracer(serviceName);
 }
