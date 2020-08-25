@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docker-debug-files-config
+data:
+  nginx.conf: |-
+    include /etc/nginx/modules/*.conf;
+    load_module /etc/nginx/modules/ngx_http_opentracing_module.so;
+    events {
+        worker_connections 4096;
+        multi_accept       on;
+        use                epoll;
+    }
+
+    http {
+        include /etc/nginx/mime.types;
+
+        # Reverse proxies can detect if a client provides a X-Request-ID header, and pass it on to the backend server.
+        # If no such header is provided, it can provide a random value.
+        map $http_x_request_id $req_id {
+            default   $http_x_request_id;
+            ""        $request_id;
+        }
+
+        # Enable tracing for all requests.
+        opentracing_load_tracer /usr/local/lib/libzipkin_opentracing_plugin.so /etc/nginx/conf.d/zipkin-nginx-conf.json;
+        opentracing on;
+        opentracing_trace_locations off;
+        opentracing_operation_name $uri;
+
+        # Optionally, set additional tags.
+        opentracing_tag http_user_agent $http_user_agent;
+        opentracing_tag request_id $req_id;
+
+        include /etc/nginx/conf.d/*.conf;
+    }
+
+  backend.conf: |-
+    server {
+      listen 8080;
+
+      location / {
+        opentracing_propagate_context;
+        proxy_pass http://localhost:7070;
+      }
+    }
+  zipkin-nginx-conf.json: |-
+    {
+      "service_name": "docker-debug",
+      "collector_host": "zipkin",
+      "collector_port": 9411,
+      "reporting_period": 1000,
+      "max_buffered_spans": 100,
+      "sample_rate": 1.0
+    }

@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,7 +16,7 @@ spec:
         app: docker-debug
     spec:
       containers:
-        - image: willthames/docker-debug:0.3-node-12.18.3
+        - image: willthames/docker-debug:0.6-node-12.18.3
           imagePullPolicy: Always
           name: docker-debug
           resources:
@@ -27,3 +28,28 @@ spec:
               value: http://zipkin:9411
             - name: APP_NAME
               value: docker-debug
+        - image: quay.io/kubernetes-ingress-controller/nginx:0.106
+          name: sidecar
+          resources:
+            limits:
+              cpu: 200m
+              memory: 100Mi
+          env:
+            - name: TRACING_URL
+              value: http://zipkin:9411
+            - name: APP_NAME
+              value: docker-debug
+          volumeMounts:
+            - name: docker-debug-files-config
+              mountPath: /etc/nginx/conf.d/backend.conf
+              subPath: backend.conf
+            - name: docker-debug-files-config
+              mountPath: /etc/nginx/conf.d/zipkin-nginx-conf.json
+              subPath: zipkin-nginx-conf.json
+            - name: docker-debug-files-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+      volumes:
+        - name: docker-debug-files-config
+          configMap:
+            name: docker-debug-files-config
